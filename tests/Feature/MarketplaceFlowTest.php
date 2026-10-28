@@ -251,4 +251,110 @@ class MarketplaceFlowTest extends TestCase
         $this->assertSame('batal', $order->fresh()->status);
         $this->assertSame($stokAwal + $item->jumlah, $item->plant->fresh()->stok);
     }
+
+    /** Pencarian katalog bersifat case-insensitive (whereLike). */
+    public function test_pencarian_katalog_case_insensitive(): void
+    {
+        $this->get('/katalog?q=monstera')->assertSee('Monstera Deliciosa');
+        $this->get('/katalog?q=MONSTERA')->assertSee('Monstera Deliciosa');
+        $this->get('/katalog?q=mOnStErA')->assertSee('Monstera Deliciosa');
+    }
+
+    /** Checkout gagal dan rollback bila stok habis tepat sebelum transaksi selesai. */
+    public function test_checkout_rollback_bila_stok_berubah_habis(): void
+    {
+        $plant = Plant::where('slug', 'monstera-deliciosa')->firstOrFail();
+        $store = $plant->store;
+
+        $this->actingAs($this->buyer())
+            ->post(route('carts.store', $plant), ['jumlah' => 2]);
+
+        // Simulasikan produk dibeli pembeli lain sebelum transaksi ini selesai
+        $plant->update(['stok' => 1]);
+
+        $orderCountBefore = Order::count();
+
+        $this->actingAs($this->buyer())->post(route('checkout.store', $store), [
+            'nama_penerima' => 'Rina Pelanggan',
+            'no_hp' => '081298765432',
+            'alamat' => 'Jl. Anggrek No. 21, Jakarta Barat',
+            'metode_serah' => 'kirim',
+        ])->assertSessionHas('error');
+
+        $this->assertSame($orderCountBefore, Order::count());
+        $this->assertSame(1, $plant->fresh()->stok);
+        // Keranjang tidak terhapus bila transaksi gagal
+        $this->assertSame(1, CartItem::where('user_id', $this->buyer()->id)->count());
+    }
+
+    /** Filter katalog berdasarkan rentang harga dan kota toko. */
+    public function test_filter_katalog_harga_dan_kota(): void
+    {
+        // Filter harga murah (<= 60.000)
+        $this->get('/katalog?harga_max=60000')
+            ->assertOk()
+            ->assertSee('Sirih Gading');
+
+        // Filter kota toko (Bandung)
+        $this->get('/katalog?kota=Bandung')
+            ->assertOk()
+            ->assertSee('Peace Lily');
+    }
+
+    /** Pembeli dapat mengonfirmasi pesanan diterima dan selesai. */
+    public function test_pembeli_konfirmasi_pesanan_selesai(): void
+    {
+        $order = Order::where('status', 'diproses')->firstOrFail();
+        $buyer = $order->buyer;
+
+        $this->actingAs($buyer)
+            ->patch(route('orders.complete', $order))
+            ->assertSessionHas('success');
+
+        $this->assertSame('selesai', $order->fresh()->status);
+    }
+
+    /** Pembeli dapat memberi rating dan ulasan untuk produk yang dibeli. */
+    public function test_pembeli_memberi_ulasan_dan_rating(): void
+    {
+        $order = Order::where('status', 'selesai')->firstOrFail();
+        $buyer = $order->buyer;
+        $item = $order->items->first();
+
+        $this->actingAs($buyer)
+            ->post(route('reviews.store', $order), [
+                'plant_id' => $item->plant_id,
+                'rating' => 5,
+                'komentar' => 'Tanaman sangat segar dan pengiriman cepat!',
+            ])
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseHas('reviews', [
+            'order_id' => $order->id,
+            'plant_id' => $item->plant_id,
+            'user_id' => $buyer->id,
+            'rating' => 5,
+        ]);
+
+        // Verifikasi ulasan tampil di halaman produk
+        $this->get(route('plants.show', $item->plant))
+            ->assertSee('Tanaman sangat segar dan pengiriman cepat!')
+            ->assertSee('ulasan pembeli');
+    }
+
+    /** Seller dan Admin dapat mengunduh laporan pesanan dalam format CSV. */
+    public function test_ekspor_laporan_pesanan_csv(): void
+    {
+        // Seller export
+        $responseSeller = $this->actingAs($this->seller())
+            ->get(route('seller.orders.export'));
+        $responseSeller->assertOk();
+        $this->assertStringContainsString('text/csv', $responseSeller->headers->get('content-type'));
+
+        // Admin export
+        $responseAdmin = $this->actingAs($this->admin())
+            ->get(route('admin.orders.export'));
+        $responseAdmin->assertOk();
+        $this->assertStringContainsString('text/csv', $responseAdmin->headers->get('content-type'));
+    }
 }

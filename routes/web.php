@@ -12,6 +12,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlantController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Seller\DashboardController as SellerDashboardController;
 use App\Http\Controllers\Seller\OrderController as SellerOrderController;
 use App\Http\Controllers\Seller\PlantController as SellerPlantController;
@@ -50,9 +51,9 @@ Route::get('/masuk', function () {
 // ======================================================== AUTENTIKASI
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 });
 
 Route::middleware('auth')->group(function () {
@@ -65,10 +66,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/keranjang/{cartItem}', [CartController::class, 'destroy'])->name('carts.destroy');
 
     Route::get('/checkout/{store:slug}', [CheckoutController::class, 'create'])->name('checkout.create');
-    Route::post('/checkout/{store:slug}', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/{store:slug}', [CheckoutController::class, 'store'])->middleware('throttle:15,1')->name('checkout.store');
 
     Route::get('/pesanan', [OrderController::class, 'mine'])->name('orders.mine');
     Route::get('/pesanan/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/pesanan/{order}/selesai', [OrderController::class, 'markCompleted'])->name('orders.complete');
+    Route::post('/pesanan/{order}/ulasan', [ReviewController::class, 'store'])->name('reviews.store');
 });
 
 // ------------------------------------------------- Penjual (seller)
@@ -86,6 +89,7 @@ Route::middleware(['auth', 'role:seller'])->prefix('seller')->name('seller.')->g
     Route::delete('/produk/{plant:slug}', [SellerPlantController::class, 'destroy'])->name('plants.destroy');
 
     Route::get('/pesanan', [SellerOrderController::class, 'index'])->name('orders.index');
+    Route::get('/pesanan/export', [SellerOrderController::class, 'exportCsv'])->name('orders.export');
     Route::patch('/pesanan/{order}/status', [SellerOrderController::class, 'updateStatus'])->name('orders.status');
 });
 
@@ -110,4 +114,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/kategori/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::get('/pesanan', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/pesanan/export', [AdminOrderController::class, 'exportCsv'])->name('orders.export');
 });

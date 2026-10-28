@@ -38,6 +38,26 @@ class OrderController extends Controller
         $waUrl = WhatsAppMessage::url($order);
         $waPesan = WhatsAppMessage::untukOrder($order);
 
+        $order->loadMissing(['reviews']);
+
         return view('orders.show', compact('order', 'waUrl', 'waPesan'));
+    }
+
+    /**
+     * Pembeli mengonfirmasi bahwa pesanan telah diterima / selesai.
+     */
+    public function markCompleted(Order $order)
+    {
+        $user = auth()->user();
+
+        abort_if($order->buyer_id !== $user->id, 403, 'Hanya pembeli yang dapat menyelesaikan pesanan ini.');
+
+        if ($order->status !== 'diproses') {
+            return back()->with('error', 'Hanya pesanan yang sedang diproses yang dapat dikonfirmasi selesai.');
+        }
+
+        $order->update(['status' => 'selesai']);
+
+        return back()->with('success', 'Pesanan telah selesai! Silakan berikan ulasan dan rating di bawah.');
     }
 }

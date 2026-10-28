@@ -43,8 +43,8 @@
                         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between gap-3">
                             <a href="{{ route('stores.show', $store) }}" class="flex items-center gap-3 min-w-0 group">
                                 <div class="w-9 h-9 rounded-lg bg-primary-light overflow-hidden flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                                    @if ($store->logo)
-                                        <img src="{{ asset('storage/' . $store->logo) }}" alt="" class="w-full h-full object-cover">
+                                    @if ($store->logo_url)
+                                        <img src="{{ $store->logo_url }}" alt="" class="w-full h-full object-cover">
                                     @else
                                         {{ mb_substr($store->nama_toko, 0, 1) }}
                                     @endif
@@ -61,8 +61,8 @@
                             @foreach ($items as $item)
                                 <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-4">
                                     <div class="w-16 h-16 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden shrink-0">
-                                        @if ($item->plant->foto)
-                                            <img src="{{ asset('storage/' . $item->plant->foto) }}" alt="{{ $item->plant->nama }}" class="w-full h-full object-cover">
+                                        @if ($item->plant->foto_url)
+                                            <img src="{{ $item->plant->foto_url }}" alt="{{ $item->plant->nama }}" class="w-full h-full object-cover">
                                         @endif
                                     </div>
 

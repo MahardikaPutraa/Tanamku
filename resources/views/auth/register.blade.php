@@ -8,7 +8,7 @@
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
                 <div class="text-center">
                     <h1 class="text-xl font-extrabold text-gray-900">Daftar Akun TanamKu</h1>
-                    <p class="mt-1.5 text-sm text-gray-600">Pilih peran Anda, lalu lengkapi data.</p>
+                    <p class="mt-1.5 text-sm text-gray-600">Silakan pilih peran akun Anda dan isi informasi yang diperlukan.</p>
                 </div>
 
                 @include('partials.alert')

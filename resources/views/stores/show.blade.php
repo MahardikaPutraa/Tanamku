@@ -15,8 +15,8 @@
 
             <div class="flex flex-col sm:flex-row sm:items-start gap-5">
                 <div class="w-20 h-20 rounded-xl bg-primary-light overflow-hidden flex items-center justify-center text-primary text-2xl font-extrabold shrink-0">
-                    @if ($store->logo)
-                        <img src="{{ asset('storage/' . $store->logo) }}" alt="{{ $store->nama_toko }}" class="w-full h-full object-cover">
+                    @if ($store->logo_url)
+                        <img src="{{ $store->logo_url }}" alt="{{ $store->nama_toko }}" class="w-full h-full object-cover">
                     @else
                         {{ mb_substr($store->nama_toko, 0, 1) }}
                     @endif

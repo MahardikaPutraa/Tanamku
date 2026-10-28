@@ -40,7 +40,14 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $user = Auth::user();
 
+        // Jika aplikasi berjalan di production, blokir login admin melalui portal publik
+        if (app()->environment('production') && $user->role === 'admin') {
+            Auth::logout();
+            return back()->withErrors(['email' => 'Akun admin tidak dapat masuk melalui portal publik.']);
+        }
+
         return match ($user->role) {
+            // Admin masih dapat login pada environment non‑production (dev / testing)
             'admin' => redirect()->intended(route('admin.dashboard'))
                 ->with('success', 'Selamat datang, ' . $user->name . '.'),
             'seller' => $user->store

@@ -40,13 +40,50 @@
                 </div>
 
                 {{-- Daftar --}}
-                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <table class="min-w-full border border-gray-200">
+    <thead class="bg-gray-50">
+        <tr>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Nama</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Slug</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Produk</th>
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse ($categories as $kategori)
+            <tr class="border-t">
+                <td class="px-4 py-2">{{ $kategori->nama }}</td>
+                <td class="px-4 py-2">{{ $kategori->slug }}</td>
+                <td class="px-4 py-2">{{ $kategori->plants_count ?? 0 }}</td>
+                <td class="px-4 py-2">
+                    <form method="POST" action="{{ route('admin.categories.update', $kategori) }}" class="flex flex-col sm:flex-row sm:items-center gap-3">
+                        @csrf
+                        @method('PUT')
+                        <input type="text" name="nama" value="{{ $kategori->nama }}" required maxlength="80"
+                               class="w-full px-2.5 py-1.5 rounded-md border border-gray-300 text-sm font-semibold outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                        <button type="submit" class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-primary bg-primary-light hover:bg-emerald-100">Simpan</button>
+                    </form>
+                    <form method="POST" action="{{ route('admin.categories.destroy', $kategori) }}" class="mt-2"
+                          onsubmit="return confirm('Hapus kategori &quot;{{ $kategori->nama }}&quot;?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-2.5 py-1.5 rounded-md text-[11px] font-semibold text-danger bg-red-50 hover:bg-red-100">Hapus</button>
+                    </form>
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="4" class="px-4 py-2 text-center text-gray-500">Belum ada kategori</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
                     <div class="px-5 py-4 border-b border-gray-100">
                         <h2 class="text-sm font-bold text-gray-900">Daftar Kategori</h2>
                     </div>
 
                     <div class="divide-y divide-gray-100">
-                        @foreach ($categories as $kategori)
+                        @forelse ($categories as $kategori)
                             <div class="px-5 py-4">
                                 <form method="POST" action="{{ route('admin.categories.update', $kategori) }}" class="flex flex-col sm:flex-row sm:items-center gap-3">
                                     @csrf

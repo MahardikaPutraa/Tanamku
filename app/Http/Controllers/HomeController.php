@@ -18,7 +18,7 @@ class HomeController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $featuredPlants = Plant::with(['category', 'store'])
+        $featuredPlants = Plant::with(['category', 'store', 'reviews'])
             ->tampil()
             ->featured()
             ->latest()

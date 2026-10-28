@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Plant;
+use App\Models\Review;
 use App\Models\Store;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -20,13 +21,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ---------------------------------------------------------- Pengguna
-        $admin = User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@tanamku.test',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'no_hp' => '081200000001',
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@tanamku.test'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'no_hp' => '081200000001',
+            ]
+        );
 
         $seller1 = User::create([
             'name' => 'Pak Hendra',
@@ -287,6 +290,26 @@ class DatabaseSeeder extends Seeder
                     'harga_satuan' => $plant->harga,
                     'jumlah' => $baris['jumlah'],
                     'subtotal' => (float) $plant->harga * $baris['jumlah'],
+                ]);
+            }
+
+            if ($p['status'] === 'selesai') {
+                Review::create([
+                    'order_id' => $order->id,
+                    'plant_id' => $produk['monstera-deliciosa']->id,
+                    'user_id' => $p['buyer']->id,
+                    'rating' => 5,
+                    'komentar' => 'Tanaman segar sekali saat sampai, akar rimbun, daun besar dan mulus. Packing kayu sangat rapi & aman!',
+                    'created_at' => $dibuat->copy()->addDays(2),
+                ]);
+
+                Review::create([
+                    'order_id' => $order->id,
+                    'plant_id' => $produk['calathea-orbifolia']->id,
+                    'user_id' => $p['buyer']->id,
+                    'rating' => 5,
+                    'komentar' => 'Motif daunnya sangat cantik, seller sangat ramah dan responsif di WhatsApp. Recommended!',
+                    'created_at' => $dibuat->copy()->addDays(2),
                 ]);
             }
         }

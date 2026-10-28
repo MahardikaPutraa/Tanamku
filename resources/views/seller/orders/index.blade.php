@@ -21,17 +21,27 @@
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Pesanan Masuk</h1>
             <p class="mt-1 text-sm text-gray-600">{{ $orders->total() }} pesanan untuk toko {{ $store->nama_toko }}.</p>
 
-            <div class="mt-6 flex flex-wrap gap-2">
-                <a href="{{ route('seller.orders.index') }}"
-                   class="px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors {{ ! request('status') ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300' }}">
-                    Semua ({{ $hitung->sum() }})
-                </a>
-                @foreach (['baru', 'diproses', 'selesai', 'batal'] as $status)
-                    <a href="{{ route('seller.orders.index', ['status' => $status]) }}"
-                       class="px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors {{ request('status') === $status ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300' }}">
-                        {{ ucfirst($status) }} ({{ $hitung[$status] ?? 0 }})
+            <div class="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('seller.orders.index') }}"
+                       class="px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors {{ ! request('status') ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300' }}">
+                        Semua ({{ $hitung->sum() }})
                     </a>
-                @endforeach
+                    @foreach (['baru', 'diproses', 'selesai', 'batal'] as $status)
+                        <a href="{{ route('seller.orders.index', ['status' => $status]) }}"
+                           class="px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors {{ request('status') === $status ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300' }}">
+                            {{ ucfirst($status) }} ({{ $hitung[$status] ?? 0 }})
+                        </a>
+                    @endforeach
+                </div>
+
+                <a href="{{ route('seller.orders.export', request()->only('status')) }}"
+                   class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Unduh Laporan (CSV)
+                </a>
             </div>
 
             <div class="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">

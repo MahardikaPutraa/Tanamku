@@ -2,8 +2,8 @@
 
 <div class="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-accent/40 transition-all duration-200 flex flex-col overflow-hidden">
     <div class="relative w-full aspect-square bg-gray-50 overflow-hidden">
-        @if ($plant->foto)
-            <img src="{{ asset('storage/' . $plant->foto) }}" alt="{{ $plant->nama }}"
+        @if ($plant->foto_url)
+            <img src="{{ $plant->foto_url }}" alt="{{ $plant->nama }}"
                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
         @else
             <div class="w-full h-full flex flex-col items-center justify-center bg-emerald-50/50 text-emerald-700/60 p-4 text-center">
@@ -18,7 +18,10 @@
             @if ($plant->stok <= 0)
                 <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-danger text-white shadow-sm">Habis</span>
             @elseif ($plant->stok <= 4)
-                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow-sm">Sisa {{ $plant->stok }}</span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                    Sisa {{ $plant->stok }}
+                </span>
             @else
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">Stok {{ $plant->stok }}</span>
             @endif
@@ -40,13 +43,28 @@
             </h3>
 
             @if ($plant->store)
-                <a href="{{ route('stores.show', $plant->store) }}"
-                   class="mt-1 inline-flex items-center gap-1 text-[11px] text-gray-500 hover:text-primary">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <div class="mt-1 flex items-center justify-between text-[11px] text-gray-500">
+                    <a href="{{ route('stores.show', $plant->store) }}"
+                       class="inline-flex items-center gap-1 hover:text-primary truncate">
+                        <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span class="truncate">{{ $plant->store->nama_toko }}</span>
+                    </a>
+                    @if ($plant->store->kota)
+                        <span class="text-gray-400 shrink-0 ml-1">📍 {{ $plant->store->kota }}</span>
+                    @endif
+                </div>
+            @endif
+
+            @if ($plant->rating_rata_rata)
+                <div class="mt-1.5 flex items-center gap-1 text-[11px] text-amber-500 font-bold">
+                    <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                     </svg>
-                    {{ $plant->store->nama_toko }}
-                </a>
+                    <span>{{ $plant->rating_rata_rata }}</span>
+                    <span class="text-gray-400 font-normal">({{ $plant->total_ulasan }})</span>
+                </div>
             @endif
         </div>
 

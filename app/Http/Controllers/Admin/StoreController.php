@@ -13,7 +13,7 @@ class StoreController extends Controller
         $stores = Store::with('user')
             ->withCount('plants')
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('q'), fn ($q) => $q->where('nama_toko', 'like', '%' . $request->q . '%'))
+            ->when($request->filled('q'), fn ($q) => $q->whereLike('nama_toko', '%' . $request->q . '%'))
             ->latest()
             ->paginate(12)
             ->withQueryString();

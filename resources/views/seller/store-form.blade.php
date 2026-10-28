@@ -106,8 +106,8 @@
                         <h2 class="text-sm font-bold text-gray-900">Logo Toko</h2>
 
                         <div id="logo-box" class="mt-4 w-full aspect-square rounded-lg bg-gray-50 border border-dashed border-gray-300 overflow-hidden flex items-center justify-center">
-                            @if ($isEdit && $store->logo)
-                                <img id="logo-img" src="{{ asset('storage/' . $store->logo) }}" alt="" class="w-full h-full object-cover">
+                            @if ($isEdit && $store->logo_url)
+                                <img id="logo-img" src="{{ $store->logo_url }}" alt="" class="w-full h-full object-cover">
                             @else
                                 <div class="text-center text-gray-400 px-4">
                                     <svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">

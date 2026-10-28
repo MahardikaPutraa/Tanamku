@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Plant extends Model
 {
@@ -59,6 +60,23 @@ class Plant extends Model
         return $this->hasMany(CartItem::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function getRatingRataRataAttribute(): ?float
+    {
+        $avg = $this->reviews()->avg('rating');
+
+        return $avg ? round((float) $avg, 1) : null;
+    }
+
+    public function getTotalUlasanAttribute(): int
+    {
+        return $this->reviews()->count();
+    }
+
     /**
      * Produk yang boleh tampil di katalog publik:
      * produk aktif DAN tokonya sudah disetujui admin.
@@ -95,6 +113,23 @@ class Plant extends Model
     public function getHargaRupiahAttribute(): string
     {
         return 'Rp ' . number_format((float) $this->harga, 0, ',', '.');
+    }
+
+    public function getFotoUrlAttribute(): ?string
+    {
+        if (blank($this->foto)) {
+            return null;
+        }
+
+        if (str_starts_with($this->foto, 'http://') || str_starts_with($this->foto, 'https://')) {
+            return $this->foto;
+        }
+
+        if (config('filesystems.default') === 's3') {
+            return Storage::disk('s3')->url($this->foto);
+        }
+
+        return asset('storage/' . $this->foto);
     }
 
     /**

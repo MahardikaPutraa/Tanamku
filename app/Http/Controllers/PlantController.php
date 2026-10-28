@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Plant;
+use App\Models\Store;
 use Illuminate\Http\Request;
 
 class PlantController extends Controller
@@ -13,9 +14,9 @@ class PlantController extends Controller
      */
     public function index(Request $request)
     {
-        $plants = Plant::with(['category', 'store'])
+        $plants = Plant::with(['category', 'store', 'reviews'])
             ->tampil()
-            ->when($request->filled('q'), fn ($q) => $q->where('nama', 'like', '%' . $request->q . '%'))
+            ->when($request->filled('q'), fn ($q) => $q->whereLike('nama', '%' . $request->q . '%'))
             ->when($request->filled('kategori'), fn ($q) => $q->whereHas(
                 'category',
                 fn ($c) => $c->where('slug', $request->kategori)
@@ -24,6 +25,12 @@ class PlantController extends Controller
                 'store',
                 fn ($s) => $s->where('slug', $request->toko)
             ))
+            ->when($request->filled('kota'), fn ($q) => $q->whereHas(
+                'store',
+                fn ($s) => $s->where('kota', $request->kota)
+            ))
+            ->when($request->filled('harga_min'), fn ($q) => $q->where('harga', '>=', (float) $request->harga_min))
+            ->when($request->filled('harga_max'), fn ($q) => $q->where('harga', '<=', (float) $request->harga_max))
             ->when($request->filled('urut'), function ($q) use ($request) {
                 match ($request->urut) {
                     'murah' => $q->orderBy('harga'),
@@ -35,20 +42,26 @@ class PlantController extends Controller
             ->withQueryString();
 
         $categories = Category::orderBy('nama')->get();
+        $cities = Store::where('status', 'aktif')
+            ->whereNotNull('kota')
+            ->where('kota', '!=', '')
+            ->distinct()
+            ->orderBy('kota')
+            ->pluck('kota');
 
-        return view('plants.index', compact('plants', 'categories'));
+        return view('plants.index', compact('plants', 'categories', 'cities'));
     }
 
     /**
-     * Detail produk + tombol tambah ke keranjang.
+     * Detail produk + ulasan + tombol tambah ke keranjang.
      */
     public function show(Plant $plant)
     {
         abort_if(! $plant->is_active || ! $plant->store->isAktif(), 404);
 
-        $plant->load(['category', 'store']);
+        $plant->load(['category', 'store', 'reviews.user']);
 
-        $lainnya = Plant::with(['category', 'store'])
+        $lainnya = Plant::with(['category', 'store', 'reviews'])
             ->tampil()
             ->where('store_id', $plant->store_id)
             ->whereKeyNot($plant->getKey())

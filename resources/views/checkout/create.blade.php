@@ -17,6 +17,24 @@
             Pesanan akan dicatat, lalu pesan WhatsApp dibuat otomatis untuk penjual.
         </p>
 
+        {{-- ALUR CHECKOUT STEPPER --}}
+        <div class="mt-6 p-4 rounded-xl bg-white border border-gray-100 shadow-xs">
+            <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="flex items-center gap-2 justify-center text-emerald-700 font-semibold">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs">✓</span>
+                    <span>1. Keranjang</span>
+                </div>
+                <div class="flex items-center gap-2 justify-center text-primary font-bold">
+                    <span class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs">2</span>
+                    <span>2. Data Pengiriman</span>
+                </div>
+                <div class="flex items-center gap-2 justify-center text-gray-400 font-medium">
+                    <span class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs">3</span>
+                    <span>3. Chat WhatsApp</span>
+                </div>
+            </div>
+        </div>
+
         <div class="mt-6 grid grid-cols-1 lg:grid-cols-5 gap-6">
             {{-- FORM --}}
             <div class="lg:col-span-3">

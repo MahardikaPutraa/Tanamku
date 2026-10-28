@@ -19,7 +19,7 @@ class PlantController extends Controller
 
         $plants = $store->plants()
             ->with('category')
-            ->when($request->filled('q'), fn ($q) => $q->where('nama', 'like', '%' . $request->q . '%'))
+            ->when($request->filled('q'), fn ($q) => $q->whereLike('nama', '%' . $request->q . '%'))
             ->latest()
             ->paginate(10)
             ->withQueryString();

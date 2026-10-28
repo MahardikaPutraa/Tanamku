@@ -15,7 +15,7 @@ class PlantController extends Controller
     public function index(Request $request)
     {
         $plants = Plant::with(['store', 'category'])
-            ->when($request->filled('q'), fn ($q) => $q->where('nama', 'like', '%' . $request->q . '%'))
+            ->when($request->filled('q'), fn ($q) => $q->whereLike('nama', '%' . $request->q . '%'))
             ->when($request->filled('toko'), fn ($q) => $q->where('store_id', $request->toko))
             ->when($request->filled('status'), function ($q) use ($request) {
                 $request->status === 'tersembunyi'

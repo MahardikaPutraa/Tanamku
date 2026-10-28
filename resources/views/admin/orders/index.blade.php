@@ -41,6 +41,14 @@
                 </select>
 
                 <button type="submit" class="px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover">Filter</button>
+
+                <a href="{{ route('admin.orders.export', request()->only(['status', 'toko', 'q'])) }}"
+                   class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Unduh CSV
+                </a>
             </form>
 
             <div class="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">

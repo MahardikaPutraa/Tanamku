@@ -34,7 +34,37 @@
                 <button type="submit" class="px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover">Cari</button>
             </form>
 
-            <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div class="mt-6">
+        <table class="min-w-full border border-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Nama Toko</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Kota</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Produk</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($stores as $store)
+                    <tr class="border-t">
+                        <td class="px-4 py-2">{{ $store->nama_toko }}</td>
+                        <td class="px-4 py-2">{{ $store->kota }}</td>
+                        <td class="px-4 py-2">{{ $store->plants_count }}</td>
+                        <td class="px-4 py-2">{{ $store->status }}</td>
+                        <td class="px-4 py-2">
+                            <a href="{{ route('stores.show', $store) }}" target="_blank" class="text-primary underline">Lihat</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-4 py-2 text-center text-gray-500">Belum ada toko</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-6">{{ $stores->links() }}</div>>
                 @forelse ($stores as $store)
                     @php
                         $warna = match ($store->status) {

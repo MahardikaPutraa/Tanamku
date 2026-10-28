@@ -17,15 +17,19 @@
             {{-- Statistik --}}
             <div class="mt-6 grid grid-cols-2 xl:grid-cols-4 gap-4">
                 @foreach ([
-                    ['Pembeli', $statistik['pembeli'], 'akun pembeli', 'bg-sky-50 text-sky-600'],
-                    ['Penjual', $statistik['penjual'], 'akun penjual', 'bg-emerald-50 text-emerald-600'],
-                    ['Toko Aktif', $statistik['toko_aktif'], $statistik['toko_menunggu'] . ' menunggu', 'bg-primary-light text-primary'],
-                    ['Pesanan', $statistik['pesanan'], 'Rp ' . number_format($statistik['omzet'], 0, ',', '.') . ' omzet', 'bg-amber-50 text-amber-600'],
+                    ['Pembeli', $statistik['pembeli'], 'akun pembeli', 'bg-sky-50 text-sky-700 border-sky-100'],
+                    ['Penjual', $statistik['penjual'], 'akun penjual', 'bg-emerald-50 text-emerald-700 border-emerald-100'],
+                    ['Toko Aktif', $statistik['toko_aktif'], $statistik['toko_menunggu'] . ' menunggu', 'bg-primary-light text-primary border-emerald-200'],
+                    ['Pesanan', $statistik['pesanan'], 'Rp ' . number_format($statistik['omzet'], 0, ',', '.') . ' omzet', 'bg-amber-50 text-amber-700 border-amber-100'],
                 ] as $kartu)
-                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                        <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{{ $kartu[0] }}</p>
-                        <p class="mt-2 text-2xl font-extrabold text-gray-900">{{ $kartu[1] }}</p>
-                        <p class="mt-1 text-[11px] text-gray-500 truncate">{{ $kartu[2] }}</p>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">{{ $kartu[0] }}</p>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $kartu[3] }}">
+                                {{ $kartu[2] }}
+                            </span>
+                        </div>
+                        <p class="mt-3 text-2xl font-extrabold text-gray-900">{{ $kartu[1] }}</p>
                     </div>
                 @endforeach
             </div>

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Store extends Model
 {
@@ -93,5 +94,22 @@ class Store extends Model
             'nonaktif' => 'Nonaktif',
             default => 'Menunggu persetujuan',
         };
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (blank($this->logo)) {
+            return null;
+        }
+
+        if (str_starts_with($this->logo, 'http://') || str_starts_with($this->logo, 'https://')) {
+            return $this->logo;
+        }
+
+        if (config('filesystems.default') === 's3') {
+            return Storage::disk('s3')->url($this->logo);
+        }
+
+        return asset('storage/' . $this->logo);
     }
 }

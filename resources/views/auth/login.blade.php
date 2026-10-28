@@ -13,8 +13,10 @@
                         </svg>
                     </div>
                     <h1 class="mt-4 text-xl font-extrabold text-gray-900">Masuk ke TanamKu</h1>
-                    <p class="mt-1.5 text-sm text-gray-600">Pembeli, penjual, dan admin — satu pintu.</p>
+                    <p class="mt-1.5 text-sm text-gray-600">Masuk ke TanamKu untuk mengakses akun Anda.</p>
                 </div>
+
+
 
                 @include('partials.alert')
 
@@ -59,4 +61,6 @@
             </p>
         </div>
     </div>
+
+    
 @endsection

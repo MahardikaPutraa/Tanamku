@@ -20,8 +20,8 @@
             {{-- FOTO --}}
             <div>
                 <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
-                    @if ($plant->foto)
-                        <img src="{{ asset('storage/' . $plant->foto) }}" alt="{{ $plant->nama }}" class="w-full h-full object-cover">
+                    @if ($plant->foto_url)
+                        <img src="{{ $plant->foto_url }}" alt="{{ $plant->nama }}" class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex flex-col items-center justify-center text-emerald-700/50 gap-3">
                             <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,12 +51,55 @@
                         <p class="mt-1.5 text-sm text-gray-500">
                             {{ $plant->category->nama }} · Kondisi {{ $plant->kondisi === 'sehat' ? 'sehat terawat' : 'perlu perhatian' }}
                         </p>
+
+                        @if ($plant->rating_rata_rata)
+                            <div class="mt-2.5 flex items-center gap-2 text-sm">
+                                <div class="flex items-center text-amber-500 font-bold">
+                                    <svg class="w-4 h-4 fill-current mr-1" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    <span>{{ $plant->rating_rata_rata }}</span>
+                                    <span class="text-xs text-gray-400 font-normal ml-0.5">/ 5.0</span>
+                                </div>
+                                <span class="text-gray-300">·</span>
+                                <a href="#ulasan" class="text-xs text-primary hover:underline font-medium">
+                                    {{ $plant->total_ulasan }} ulasan pembeli
+                                </a>
+                            </div>
+                        @else
+                            <div class="mt-2 flex items-center gap-1.5 text-xs text-gray-400">
+                                <span class="text-amber-400">★</span>
+                                <span>Belum ada ulasan</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
                 <div class="mt-4 flex items-baseline gap-3">
                     <span class="text-3xl font-extrabold text-primary">{{ $plant->harga_rupiah }}</span>
                     <span class="text-sm text-gray-500">/ pot</span>
+                </div>
+
+                {{-- SPESIFIKASI & HIGHLIGHT --}}
+                <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                    <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                        <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Kategori</span>
+                        <span class="font-semibold text-gray-800 mt-0.5 block truncate">{{ $plant->category->nama }}</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                        <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Lokasi Kebun</span>
+                        <span class="font-semibold text-gray-800 mt-0.5 block truncate">📍 {{ $plant->store->kota }}</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                        <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Pengiriman</span>
+                        <span class="font-semibold text-gray-800 mt-0.5 block truncate">{{ $plant->store->metode_serah_label }}</span>
+                    </div>
+                    <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+                        <span class="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Kondisi</span>
+                        <span class="font-semibold {{ $plant->kondisi === 'sehat' ? 'text-emerald-700' : 'text-amber-700' }} mt-0.5 block truncate">
+                            {{ $plant->kondisi === 'sehat' ? '✓ Sehat Terawat' : '⚠ Perlu Rawat' }}
+                        </span>
+                    </div>
                 </div>
 
                 <p class="mt-5 text-sm text-gray-700 leading-relaxed">{{ $plant->deskripsi }}</p>
@@ -66,8 +109,8 @@
                     <div class="flex items-center justify-between gap-3">
                         <a href="{{ route('stores.show', $plant->store) }}" class="flex items-center gap-3 min-w-0 group">
                             <div class="w-11 h-11 rounded-lg bg-primary-light overflow-hidden flex items-center justify-center text-primary font-bold shrink-0">
-                                @if ($plant->store->logo)
-                                    <img src="{{ asset('storage/' . $plant->store->logo) }}" alt="{{ $plant->store->nama_toko }}" class="w-full h-full object-cover">
+                                @if ($plant->store->logo_url)
+                                    <img src="{{ $plant->store->logo_url }}" alt="{{ $plant->store->nama_toko }}" class="w-full h-full object-cover">
                                 @else
                                     {{ mb_substr($plant->store->nama_toko, 0, 1) }}
                                 @endif
@@ -94,19 +137,26 @@
                                     Stok sedang habis. Coba lihat produk lain dari toko ini.
                                 </div>
                             @else
-                                <form method="POST" action="{{ route('carts.store', $plant) }}" class="flex items-end gap-3">
+                                <form method="POST" action="{{ route('carts.store', $plant) }}" class="space-y-3">
                                     @csrf
-                                    <div class="w-28">
-                                        <label for="jumlah" class="block text-xs font-semibold text-gray-700 mb-1.5">
-                                            Jumlah <span class="font-normal text-gray-400">(maks {{ $plant->stok }})</span>
-                                        </label>
-                                        <input type="number" id="jumlah" name="jumlah" value="1" min="1" max="{{ $plant->stok }}"
-                                               class="w-full px-3 py-2.5 rounded-lg border border-gray-300 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                                    <div class="flex items-end gap-3">
+                                        <div class="w-28">
+                                            <label for="jumlah" class="block text-xs font-semibold text-gray-700 mb-1.5">
+                                                Jumlah <span class="font-normal text-gray-400">(maks {{ $plant->stok }})</span>
+                                            </label>
+                                            <input type="number" id="jumlah" name="jumlah" value="1" min="1" max="{{ $plant->stok }}"
+                                                   class="w-full px-3 py-2.5 rounded-lg border border-gray-300 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                                        </div>
+                                        <button type="submit"
+                                                class="flex-1 px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-bold shadow-sm hover:bg-primary-hover transition-colors">
+                                            Tambah ke Keranjang
+                                        </button>
                                     </div>
-                                    <button type="submit"
-                                            class="flex-1 px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-bold shadow-sm hover:bg-primary-hover transition-colors">
-                                        Tambah ke Keranjang
-                                    </button>
+
+                                    <div class="flex items-center justify-between text-xs text-gray-500 pt-1">
+                                        <span>Estimasi Subtotal:</span>
+                                        <span id="subtotal-text" class="text-sm font-bold text-primary">{{ $plant->harga_rupiah }}</span>
+                                    </div>
                                 </form>
 
                                 <p class="mt-3 text-[11px] text-gray-500">
@@ -135,6 +185,19 @@
                             <p class="mt-3 text-[11px] text-gray-500">Hanya ingin melihat-lihat? Tidak perlu masuk.</p>
                         </div>
                     @endauth
+
+                    {{-- Bagikan Produk --}}
+                    <div class="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                        <span>Suka tanaman ini?</span>
+                        <a href="https://wa.me/?text={{ rawurlencode('Lihat tanaman ' . $plant->nama . ' di TanamKu: ' . request()->url()) }}"
+                           target="_blank" rel="noopener"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-semibold hover:bg-emerald-100 transition-colors">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2z"/>
+                            </svg>
+                            Bagikan ke WhatsApp
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,6 +235,68 @@
             </div>
         @endif
 
+        {{-- ULASAN PEMBELI --}}
+        <div id="ulasan" class="mt-14 scroll-mt-6">
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 lg:p-8">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-gray-100">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">Ulasan & Penilaian Pembeli</h2>
+                        <p class="mt-1 text-xs text-gray-500">Pendapat pembeli yang telah menerima tanaman ini.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        @if ($plant->rating_rata_rata)
+                            <div class="flex items-center text-amber-500 text-2xl font-black">
+                                <svg class="w-7 h-7 fill-current mr-1.5" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                <span>{{ $plant->rating_rata_rata }}</span>
+                                <span class="text-sm text-gray-400 font-normal ml-1">/ 5.0</span>
+                            </div>
+                            <span class="text-xs text-gray-500">({{ $plant->total_ulasan }} ulasan)</span>
+                        @else
+                            <span class="text-sm text-gray-400">Belum ada penilaian</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="mt-6 space-y-4">
+                    @forelse ($plant->reviews as $review)
+                        <div class="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center">
+                                        {{ mb_substr($review->user->name ?? 'P', 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-gray-900">{{ $review->user->name ?? 'Pembeli' }}</p>
+                                        <p class="text-[10px] text-gray-400">{{ $review->created_at->format('d M Y') }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center text-amber-400">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <svg class="w-4 h-4 {{ $i <= $review->rating ? 'fill-current' : 'text-gray-200 fill-current' }}" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    @endfor
+                                </div>
+                            </div>
+
+                            @if ($review->komentar)
+                                <p class="mt-3 text-sm text-gray-700 leading-relaxed">{{ $review->komentar }}</p>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="text-center py-8 text-gray-400 text-sm">
+                            <p>Belum ada ulasan untuk tanaman ini.</p>
+                            <p class="text-xs mt-1 text-gray-400">Beli tanaman ini dan jadilah yang pertama memberikan ulasan!</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
         {{-- LAINNYA DARI TOKO INI --}}
         @if ($lainnya->isNotEmpty())
             <div class="mt-14">
@@ -184,4 +309,22 @@
             </div>
         @endif
     </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const harga = {{ (float) $plant->harga }};
+                const input = document.getElementById('jumlah');
+                const subtotal = document.getElementById('subtotal-text');
+                if (input && subtotal) {
+                    input.addEventListener('input', function () {
+                        let qty = parseInt(this.value, 10);
+                        if (isNaN(qty) || qty < 1) qty = 1;
+                        const total = harga * qty;
+                        subtotal.textContent = 'Rp ' + total.toLocaleString('id-ID');
+                    });
+                }
+            });
+        </script>
+    @endpush
 @endsection

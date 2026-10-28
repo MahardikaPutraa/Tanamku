@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'TanamKu - Katalog & Pemesanan Tanaman Hias')</title>
 
+    <!-- Favicon: TanamKu Leaf Brand -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232F6B4F'><path d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'/></svg>">
+
     <!-- Google Font: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,8 +66,10 @@
         @yield('content')
     </main>
 
-    <!-- Footer -->
-    @include('partials.footer')
+    <!-- Footer (hanya untuk publik & penjual) -->
+    @unless (request()->routeIs('admin.*'))
+        @include('partials.footer')
+    @endunless
 
     @stack('scripts')
 </body>

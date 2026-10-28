@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\Plant;
 use App\Models\Store;
 use App\Services\WhatsAppMessage;
 use Illuminate\Http\Request;
@@ -64,51 +65,58 @@ class CheckoutController extends Controller
             'metode_serah.in' => 'Metode penyerahan tidak tersedia di toko ini.',
         ]);
 
-        // Validasi stok terakhir sebelum menyimpan.
-        foreach ($items as $item) {
-            if (! $item->plant->is_active) {
-                return back()->with('error', $item->plant->nama . ' sudah tidak dijual.')->withInput();
-            }
-            if ($item->jumlah > $item->plant->stok) {
-                return back()->with('error', 'Stok ' . $item->plant->nama . ' tersisa ' . $item->plant->stok . ' unit.')->withInput();
-            }
-        }
+        try {
+            $order = DB::transaction(function () use ($items, $store, $data) {
+                // Kunci baris produk dan validasi stok terkini secara atomik (mencegah race condition)
+                foreach ($items as $item) {
+                    $plant = Plant::whereKey($item->plant_id)->lockForUpdate()->first();
 
-        $order = DB::transaction(function () use ($items, $store, $data) {
-            $total = $items->sum(fn (CartItem $item) => $item->subtotal);
+                    if (! $plant || ! $plant->is_active) {
+                        throw new \RuntimeException(($item->plant->nama ?? 'Produk') . ' sudah tidak dijual.');
+                    }
 
-            $order = Order::create([
-                'buyer_id' => auth()->id(),
-                'store_id' => $store->id,
-                'nama_penerima' => $data['nama_penerima'],
-                'no_hp' => $data['no_hp'],
-                'alamat' => $data['alamat'],
-                'metode_serah' => $data['metode_serah'],
-                'catatan' => $data['catatan'] ?? null,
-                'total_harga' => $total,
-                'status' => 'baru',
-            ]);
+                    if ($item->jumlah > $plant->stok) {
+                        throw new \RuntimeException('Stok ' . $plant->nama . ' tersisa ' . $plant->stok . ' unit.');
+                    }
+                }
 
-            foreach ($items as $item) {
-                $order->items()->create([
-                    'plant_id' => $item->plant_id,
-                    'nama_produk' => $item->plant->nama,
-                    'harga_satuan' => $item->plant->harga,
-                    'jumlah' => $item->jumlah,
-                    'subtotal' => $item->subtotal,
+                $total = $items->sum(fn (CartItem $item) => $item->subtotal);
+
+                $order = Order::create([
+                    'buyer_id' => auth()->id(),
+                    'store_id' => $store->id,
+                    'nama_penerima' => $data['nama_penerima'],
+                    'no_hp' => $data['no_hp'],
+                    'alamat' => $data['alamat'],
+                    'metode_serah' => $data['metode_serah'],
+                    'catatan' => $data['catatan'] ?? null,
+                    'total_harga' => $total,
+                    'status' => 'baru',
                 ]);
 
-                // Stok dikunci saat pesanan dibuat; dikembalikan bila pesanan dibatalkan.
-                $item->plant->decrement('stok', $item->jumlah);
-            }
+                foreach ($items as $item) {
+                    $order->items()->create([
+                        'plant_id' => $item->plant_id,
+                        'nama_produk' => $item->plant->nama,
+                        'harga_satuan' => $item->plant->harga,
+                        'jumlah' => $item->jumlah,
+                        'subtotal' => $item->subtotal,
+                    ]);
 
-            // Kosongkan keranjang khusus toko ini saja.
-            CartItem::where('user_id', auth()->id())
-                ->whereIn('id', $items->pluck('id'))
-                ->delete();
+                    // Stok dikurangi secara aman di dalam lock transaksi
+                    Plant::whereKey($item->plant_id)->decrement('stok', $item->jumlah);
+                }
 
-            return $order;
-        });
+                // Kosongkan keranjang khusus toko ini saja.
+                CartItem::where('user_id', auth()->id())
+                    ->whereIn('id', $items->pluck('id'))
+                    ->delete();
+
+                return $order;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage())->withInput();
+        }
 
         // Simpan data kontak terakhir ke profil pembeli.
         auth()->user()->update([
