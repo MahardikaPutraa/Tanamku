@@ -54,10 +54,34 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+
+    // SMS OTP Registrasi
+    Route::get('/register/otp', [AuthController::class, 'showOtp'])->name('register.otp');
+    Route::post('/register/otp', [AuthController::class, 'verifyOtp'])->name('register.otp.verify');
+    Route::post('/register/otp/resend', [AuthController::class, 'resendOtp'])->name('register.otp.resend');
+
+    // Lupa & Reset Password
+    Route::get('/lupa-password', [AuthController::class, 'showForgotPassword'])->name('password.request');
+    Route::post('/lupa-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+
+    // Step 2: Input Kode OTP dari Email
+    Route::get('/reset-password', [AuthController::class, 'showResetOtp']);
+    Route::get('/reset-password/kode', [AuthController::class, 'showResetOtp'])->name('password.otp.form');
+    Route::post('/reset-password/kode', [AuthController::class, 'verifyResetOtp'])->name('password.otp.verify');
+
+    // Step 3: Input Password Baru (setelah kode benar)
+    Route::get('/reset-password/baru', [AuthController::class, 'showResetPassword'])->name('password.reset.form');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Verifikasi Email
+    Route::get('/email/verifikasi', [AuthController::class, 'showEmailVerification'])->name('verification.notice');
+    Route::post('/email/verifikasi/kirim', [AuthController::class, 'sendEmailVerificationOtp'])->name('verification.send');
+    Route::post('/email/verifikasi/cek', [AuthController::class, 'verifyEmailOtp'])->name('verification.check');
 
     // ------------------------------------------------ Pembeli (buyer)
     Route::get('/keranjang', [CartController::class, 'index'])->name('carts.index');

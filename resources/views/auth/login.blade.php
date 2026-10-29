@@ -35,7 +35,12 @@
                     </div>
 
                     <div>
-                        <label for="password" class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="password" class="block text-xs font-semibold text-gray-700">Password</label>
+                            <a href="{{ route('password.request') }}" class="text-xs font-semibold text-primary hover:underline">
+                                Lupa Password?
+                            </a>
+                        </div>
                         <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••"
                                class="w-full px-3 py-2.5 rounded-lg border border-gray-300 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition">
                     </div>

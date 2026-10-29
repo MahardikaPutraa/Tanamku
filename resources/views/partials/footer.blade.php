@@ -37,9 +37,11 @@
                     <li>
                         <a href="{{ route('plants.index') }}" class="text-gray-600 hover:text-primary transition-colors">Katalog Tanaman</a>
                     </li>
-                    <li>
-                        <a href="{{ route('register', ['role' => 'seller']) }}" class="text-gray-600 hover:text-primary transition-colors">Buka Toko</a>
-                    </li>
+                    @guest
+                        <li>
+                            <a href="{{ route('register', ['role' => 'seller']) }}" class="text-gray-600 hover:text-primary transition-colors">Buka Toko</a>
+                        </li>
+                    @endguest
                 </ul>
             </div>
 

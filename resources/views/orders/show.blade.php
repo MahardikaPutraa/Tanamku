@@ -208,10 +208,12 @@
                 </div>
 
                 <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <h2 class="text-sm font-bold text-gray-900">Pengiriman</h2>
+                    <h2 class="text-sm font-bold text-gray-900">
+                        {{ $order->metode_serah === 'ambil' ? 'Pengambilan di Toko' : 'Pengiriman' }}
+                    </h2>
                     <dl class="mt-2 space-y-1.5 text-xs">
                         <div class="flex justify-between gap-3">
-                            <dt class="text-gray-500">Penerima</dt>
+                            <dt class="text-gray-500">{{ $order->metode_serah === 'ambil' ? 'Pengambil' : 'Penerima' }}</dt>
                             <dd class="text-gray-900 font-medium text-right">{{ $order->nama_penerima }}</dd>
                         </div>
                         <div class="flex justify-between gap-3">
@@ -222,12 +224,21 @@
                             <dt class="text-gray-500">Metode</dt>
                             <dd class="text-gray-900 font-medium text-right">{{ $order->metode_serah_label }}</dd>
                         </div>
-                        <div>
-                            <dt class="text-gray-500">Alamat</dt>
-                            <dd class="mt-1 text-gray-900">{{ $order->alamat }}</dd>
-                        </div>
-                        @if ($order->catatan)
+                        @if ($order->metode_serah === 'ambil')
+                            <div class="pt-2 border-t border-gray-100">
+                                <dt class="text-gray-500 font-semibold text-emerald-800">Alamat Toko (Lokasi Pengambilan)</dt>
+                                <dd class="mt-1 text-gray-900 font-medium">{{ $order->store->nama_toko }}</dd>
+                                <dd class="text-gray-600 mt-0.5">{{ $order->store->alamat }}, {{ $order->store->kota }}</dd>
+                                <dd class="text-[11px] text-gray-500 mt-1">WA: {{ $order->store->no_wa }}</dd>
+                            </div>
+                        @else
                             <div>
+                                <dt class="text-gray-500">Alamat Pengiriman</dt>
+                                <dd class="mt-1 text-gray-900">{{ $order->alamat }}</dd>
+                            </div>
+                        @endif
+                        @if ($order->catatan)
+                            <div class="pt-1.5">
                                 <dt class="text-gray-500">Catatan</dt>
                                 <dd class="mt-1 text-gray-900">{{ $order->catatan }}</dd>
                             </div>

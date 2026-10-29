@@ -53,20 +53,27 @@ class CheckoutController extends Controller
             default => ['ambil', 'kirim'],
         };
 
+        $isAmbil = $request->input('metode_serah') === 'ambil';
+
         $data = $request->validate([
             'nama_penerima' => ['required', 'string', 'max:100'],
             'no_hp' => ['required', 'string', 'max:20', 'regex:/^[0-9\+\-\s]{8,20}$/'],
-            'alamat' => ['required', 'string', 'min:10', 'max:500'],
+            'alamat' => [$isAmbil ? 'nullable' : 'required', 'string', $isAmbil ? 'max:500' : 'min:10', 'max:500'],
             'metode_serah' => ['required', 'in:' . implode(',', $metodeBoleh)],
             'catatan' => ['nullable', 'string', 'max:500'],
         ], [
             'no_hp.regex' => 'Nomor HP hanya boleh berisi angka, spasi, tanda + atau -.',
-            'alamat.min' => 'Alamat terlalu pendek, minimal 10 karakter.',
+            'alamat.required' => 'Alamat pengiriman wajib diisi untuk pesanan yang dikirim.',
+            'alamat.min' => 'Alamat pengiriman terlalu pendek, minimal 10 karakter.',
             'metode_serah.in' => 'Metode penyerahan tidak tersedia di toko ini.',
         ]);
 
+        $alamatFinal = $isAmbil
+            ? (! empty($data['alamat']) ? $data['alamat'] : ('Ambil di toko (' . $store->nama_toko . ' - ' . $store->alamat . ', ' . $store->kota . ')'))
+            : $data['alamat'];
+
         try {
-            $order = DB::transaction(function () use ($items, $store, $data) {
+            $order = DB::transaction(function () use ($items, $store, $data, $alamatFinal) {
                 // Kunci baris produk dan validasi stok terkini secara atomik (mencegah race condition)
                 foreach ($items as $item) {
                     $plant = Plant::whereKey($item->plant_id)->lockForUpdate()->first();
@@ -87,7 +94,7 @@ class CheckoutController extends Controller
                     'store_id' => $store->id,
                     'nama_penerima' => $data['nama_penerima'],
                     'no_hp' => $data['no_hp'],
-                    'alamat' => $data['alamat'],
+                    'alamat' => $alamatFinal,
                     'metode_serah' => $data['metode_serah'],
                     'catatan' => $data['catatan'] ?? null,
                     'total_harga' => $total,
@@ -118,11 +125,12 @@ class CheckoutController extends Controller
             return back()->with('error', $e->getMessage())->withInput();
         }
 
-        // Simpan data kontak terakhir ke profil pembeli.
-        auth()->user()->update([
-            'no_hp' => $data['no_hp'],
-            'alamat' => $data['alamat'],
-        ]);
+        // Simpan data kontak terakhir ke profil pembeli (alamat hanya jika dikirim).
+        $updateProfil = ['no_hp' => $data['no_hp']];
+        if (! $isAmbil && ! empty($data['alamat'])) {
+            $updateProfil['alamat'] = $data['alamat'];
+        }
+        auth()->user()->update($updateProfil);
 
         return redirect()
             ->route('orders.show', $order)

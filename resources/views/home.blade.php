@@ -33,10 +33,30 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
                             </svg>
                         </a>
-                        <a href="{{ route('register', ['role' => 'seller']) }}"
-                           class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white ring-1 ring-white/40 hover:bg-white/10 transition-colors">
-                            Buka Toko
-                        </a>
+
+                        @guest
+                            <a href="{{ route('register', ['role' => 'seller']) }}"
+                               class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white ring-1 ring-white/40 hover:bg-white/10 transition-colors">
+                                Buka Toko
+                            </a>
+                        @else
+                            @if (auth()->user()->isSeller())
+                                <a href="{{ route('seller.dashboard') }}"
+                                   class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white ring-1 ring-white/40 hover:bg-white/10 transition-colors">
+                                    Kelola Toko Saya
+                                </a>
+                            @elseif (auth()->user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}"
+                                   class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white ring-1 ring-white/40 hover:bg-white/10 transition-colors">
+                                    Panel Admin
+                                </a>
+                            @else
+                                <a href="{{ route('orders.mine') }}"
+                                   class="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white ring-1 ring-white/40 hover:bg-white/10 transition-colors">
+                                    Pesanan Saya
+                                </a>
+                            @endif
+                        @endguest
                     </div>
 
                     @guest

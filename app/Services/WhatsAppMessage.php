@@ -28,8 +28,12 @@ class WhatsAppMessage
         $baris[] = '';
         $baris[] = 'Nama     : ' . $order->nama_penerima;
         $baris[] = 'No HP    : ' . $order->no_hp;
-        $baris[] = 'Alamat   : ' . $order->alamat;
         $baris[] = 'Metode   : ' . $order->metode_serah_label;
+        if ($order->metode_serah === 'ambil') {
+            $baris[] = 'Lokasi   : ' . $order->store->nama_toko . ' (' . $order->store->alamat . ', ' . $order->store->kota . ')';
+        } else {
+            $baris[] = 'Alamat   : ' . $order->alamat;
+        }
 
         if ($order->catatan) {
             $baris[] = 'Catatan  : ' . $order->catatan;

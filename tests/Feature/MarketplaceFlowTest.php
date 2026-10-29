@@ -114,6 +114,28 @@ class MarketplaceFlowTest extends TestCase
         $this->assertSame(0, CartItem::where('user_id', $this->buyer()->id)->count());
     }
 
+    /** Checkout ambil di toko berhasil tanpa input alamat rumah dan menyimpan alamat toko. */
+    public function test_checkout_ambil_di_toko_menyimpan_alamat_toko(): void
+    {
+        $plant = Plant::where('slug', 'zz-plant')->firstOrFail();
+        $store = $plant->store;
+
+        $this->actingAs($this->buyer())
+            ->post(route('carts.store', $plant), ['jumlah' => 1]);
+
+        $this->actingAs($this->buyer())->post(route('checkout.store', $store), [
+            'nama_penerima' => 'Rina Pelanggan',
+            'no_hp' => '081298765432',
+            'metode_serah' => 'ambil',
+            'catatan' => 'Ambil hari Sabtu',
+        ])->assertRedirect();
+
+        $order = Order::latest('id')->firstOrFail();
+        $this->assertSame('ambil', $order->metode_serah);
+        $this->assertStringContainsString($store->nama_toko, $order->alamat);
+        $this->assertSame(0, CartItem::where('user_id', $this->buyer()->id)->count());
+    }
+
     /** Pesan WhatsApp memuat kode, item, dan total yang benar. */
     public function test_pesan_whatsapp_berisi_rincian_pesanan(): void
     {

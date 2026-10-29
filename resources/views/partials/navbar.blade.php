@@ -100,12 +100,23 @@
                     @endif
 
                     <div class="flex items-center gap-2 pl-2 border-l border-gray-200">
-                        <div class="w-8 h-8 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center uppercase">
+                        <div class="w-8 h-8 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center uppercase shrink-0">
                             {{ mb_substr($u->name, 0, 1) }}
                         </div>
-                        <div class="leading-tight hidden xl:block">
-                            <p class="text-xs font-semibold text-gray-800 max-w-[7rem] truncate">{{ $u->name }}</p>
-                            <p class="text-[10px] text-gray-500">{{ $u->role_label }}</p>
+                        <div class="leading-tight hidden lg:block">
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-semibold text-gray-800 max-w-[8rem] truncate">{{ $u->name }}</p>
+                                @if ($u->email_verified_at)
+                                    <span class="inline-flex items-center text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full" title="Email Terverifikasi">
+                                        ✓ Verified
+                                    </span>
+                                @else
+                                    <a href="{{ route('verification.notice') }}" class="inline-flex items-center text-[10px] font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-1.5 py-0.5 rounded-full transition" title="Klik untuk verifikasi email">
+                                        (Belum Verified)
+                                    </a>
+                                @endif
+                            </div>
+                            <p class="text-[10px] text-gray-500 truncate max-w-[11rem]">{{ $u->email }} · {{ $u->role_label }}</p>
                         </div>
                     </div>
 
@@ -175,10 +186,21 @@
             @endif
 
             <div class="pt-3 mt-1 border-t border-gray-100">
+                <div class="px-3 py-2 bg-gray-50 rounded-lg mb-2">
+                    <p class="text-xs font-bold text-gray-800">{{ $u->name }} ({{ $u->role_label }})</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <p class="text-[11px] text-gray-500">{{ $u->email }}</p>
+                        @if ($u->email_verified_at)
+                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">✓ Verified</span>
+                        @else
+                            <a href="{{ route('verification.notice') }}" class="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full hover:underline">(Belum Verified)</a>
+                        @endif
+                    </div>
+                </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-danger hover:bg-red-50">
-                        Keluar ({{ $u->name }})
+                        Keluar
                     </button>
                 </form>
             </div>
