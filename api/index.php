@@ -15,5 +15,10 @@ foreach ($dirs as $dir) {
     }
 }
 
+// In Vercel serverless, explicitly flag HTTPS
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['SERVER_PORT'] = 443;
+$_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
+
 require __DIR__ . '/../public/index.php';
 
