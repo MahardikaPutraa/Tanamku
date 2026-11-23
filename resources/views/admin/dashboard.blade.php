@@ -3,135 +3,141 @@
 @section('title', 'Dashboard Admin — TanamKu')
 
 @section('content')
-    <div class="flex">
+    <div class="flex flex-col md:flex-row min-h-screen">
         @include('partials.sidebar')
 
-        <div class="flex-1 min-w-0 p-5 lg:p-8">
+        <div class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
             @include('partials.alert')
 
-            <div>
-                <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">Dashboard Admin</h1>
-                <p class="mt-1 text-sm text-gray-600">Ringkasan platform TanamKu, {{ now()->format('d F Y') }}.</p>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Dashboard Admin</h1>
+                    <p class="mt-1 text-sm text-slate-500">Ringkasan operasional platform TanamKu, {{ now()->format('d F Y') }}.</p>
+                </div>
             </div>
 
-            {{-- Statistik --}}
-            <div class="mt-6 grid grid-cols-2 xl:grid-cols-4 gap-4">
+            {{-- 4 Stat Utama --}}
+            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 @foreach ([
-                    ['Pembeli', $statistik['pembeli'], 'akun pembeli', 'bg-sky-50 text-sky-700 border-sky-100'],
-                    ['Penjual', $statistik['penjual'], 'akun penjual', 'bg-emerald-50 text-emerald-700 border-emerald-100'],
-                    ['Toko Aktif', $statistik['toko_aktif'], $statistik['toko_menunggu'] . ' menunggu', 'bg-primary-light text-primary border-emerald-200'],
-                    ['Pesanan', $statistik['pesanan'], 'Rp ' . number_format($statistik['omzet'], 0, ',', '.') . ' omzet', 'bg-amber-50 text-amber-700 border-amber-100'],
+                    ['Pembeli', $statistik['pembeli'], 'akun terdaftar', 'bg-sky-50 text-sky-700 border-sky-200/80', '👤', 'from-sky-500/10 to-blue-500/5'],
+                    ['Penjual', $statistik['penjual'], 'akun terdaftar', 'bg-emerald-50 text-emerald-700 border-emerald-200/80', '🏪', 'from-emerald-500/10 to-teal-500/5'],
+                    ['Toko Aktif', $statistik['toko_aktif'], $statistik['toko_menunggu'] . ' menunggu', 'bg-primary-light text-primary border-emerald-200/80', '🌱', 'from-primary/10 to-emerald-500/5'],
+                    ['Pesanan', $statistik['pesanan'], 'Rp ' . number_format($statistik['omzet'], 0, ',', '.') . ' omzet', 'bg-amber-50 text-amber-700 border-amber-200/80', '📦', 'from-amber-500/10 to-orange-500/5'],
                 ] as $kartu)
-                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-5 flex flex-col justify-between">
                         <div class="flex items-center justify-between">
-                            <p class="text-[11px] font-bold text-gray-500 uppercase tracking-wide">{{ $kartu[0] }}</p>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $kartu[3] }}">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-xl bg-gradient-to-br {{ $kartu[5] }} flex items-center justify-center text-sm shadow-2xs">{{ $kartu[4] }}</span>
+                                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{{ $kartu[0] }}</p>
+                            </div>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $kartu[3] }}">
                                 {{ $kartu[2] }}
                             </span>
                         </div>
-                        <p class="mt-3 text-2xl font-extrabold text-gray-900">{{ $kartu[1] }}</p>
+                        <p class="mt-4 text-3xl font-extrabold text-slate-900 tracking-tight">{{ $kartu[1] }}</p>
                     </div>
                 @endforeach
             </div>
 
-            <div class="mt-4 grid grid-cols-2 xl:grid-cols-4 gap-4">
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <p class="text-[11px] font-semibold text-gray-500 uppercase">Total Produk</p>
-                    <p class="mt-2 text-2xl font-extrabold text-gray-900">{{ $statistik['produk'] }}</p>
+            {{-- Metric Strip Tambahan --}}
+            <div class="mt-4 grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Produk</p>
+                    <p class="mt-2 text-2xl font-extrabold text-slate-900">{{ $statistik['produk'] }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <p class="text-[11px] font-semibold text-gray-500 uppercase">Produk Disembunyikan</p>
-                    <p class="mt-2 text-2xl font-extrabold {{ $statistik['produk_tersembunyi'] > 0 ? 'text-danger' : 'text-gray-900' }}">{{ $statistik['produk_tersembunyi'] }}</p>
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Produk Disembunyikan</p>
+                    <p class="mt-2 text-2xl font-extrabold {{ $statistik['produk_tersembunyi'] > 0 ? 'text-red-500' : 'text-slate-900' }}">{{ $statistik['produk_tersembunyi'] }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <p class="text-[11px] font-semibold text-gray-500 uppercase">Toko Menunggu</p>
-                    <p class="mt-2 text-2xl font-extrabold {{ $statistik['toko_menunggu'] > 0 ? 'text-amber-600' : 'text-gray-900' }}">{{ $statistik['toko_menunggu'] }}</p>
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Toko Menunggu</p>
+                    <p class="mt-2 text-2xl font-extrabold {{ $statistik['toko_menunggu'] > 0 ? 'text-amber-600' : 'text-slate-900' }}">{{ $statistik['toko_menunggu'] }}</p>
                 </div>
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <p class="text-[11px] font-semibold text-gray-500 uppercase">Omzet Tercatat</p>
-                    <p class="mt-2 text-lg font-extrabold text-gray-900 truncate">Rp {{ number_format($statistik['omzet'], 0, ',', '.') }}</p>
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Omzet Tercatat</p>
+                    <p class="mt-2 text-lg font-extrabold text-slate-900 truncate">Rp {{ number_format($statistik['omzet'], 0, ',', '.') }}</p>
                 </div>
             </div>
 
             <div class="mt-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {{-- Toko menunggu --}}
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-gray-900">Menunggu Persetujuan</h2>
-                        <a href="{{ route('admin.stores.index', ['status' => 'menunggu']) }}" class="text-xs font-semibold text-primary hover:underline">Semua →</a>
+                {{-- Toko menunggu persetujuan --}}
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            <h2 class="text-sm font-bold text-slate-900">Menunggu Persetujuan</h2>
+                        </div>
+                        <a href="{{ route('admin.stores.index', ['status' => 'menunggu']) }}" class="text-xs font-bold text-primary hover:underline">Semua →</a>
                     </div>
 
                     <div class="mt-4 space-y-3">
                         @forelse ($tokoMenunggu as $toko)
-                            <div class="p-3 rounded-lg bg-amber-50 border border-amber-200">
-                                <p class="text-xs font-bold text-gray-900 truncate">{{ $toko->nama_toko }}</p>
-                                <p class="text-[11px] text-gray-600">{{ $toko->kota }} · {{ $toko->user->name ?? '-' }}</p>
+                            <div class="p-3.5 rounded-xl bg-amber-50/60 border border-amber-200/80">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-xs font-bold text-slate-900 truncate">{{ $toko->nama_toko }}</p>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Menunggu</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-0.5">📍 {{ $toko->kota }} · Owner: {{ $toko->user->name ?? '-' }}</p>
 
-                                <form method="POST" action="{{ route('admin.stores.status', $toko) }}" class="mt-2">
+                                <form method="POST" action="{{ route('admin.stores.status', $toko) }}" class="mt-3">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status" value="aktif">
-                                    <button type="submit" class="w-full py-1.5 rounded-md bg-primary text-white text-[11px] font-bold hover:bg-primary-hover">
-                                        Setujui Toko
+                                    <button type="submit" class="w-full py-2 rounded-lg bg-primary text-white text-xs font-bold shadow-xs hover:bg-primary-hover hover:shadow transition-all">
+                                        ✓ Setujui Toko
                                     </button>
                                 </form>
                             </div>
                         @empty
-                            <p class="text-xs text-gray-500 py-8 text-center">Tidak ada toko yang menunggu. 👍</p>
+                            <div class="text-center py-10">
+                                <div class="w-10 h-10 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold mb-2">✓</div>
+                                <p class="text-xs font-semibold text-slate-500">Tidak ada toko yang menunggu.</p>
+                            </div>
                         @endforelse
                     </div>
                 </div>
 
                 {{-- Pesanan terbaru --}}
-                <div class="xl:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-gray-900">Pesanan Terbaru</h2>
-                        <a href="{{ route('admin.orders.index') }}" class="text-xs font-semibold text-primary hover:underline">Semua →</a>
+                <div class="xl:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                            <h2 class="text-sm font-bold text-slate-900">Pesanan Terbaru</h2>
+                        </div>
+                        <a href="{{ route('admin.orders.index') }}" class="text-xs font-bold text-primary hover:underline">Semua Pesanan →</a>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-50 text-left">
-                                <tr class="text-[11px] font-semibold text-gray-600 uppercase tracking-wide">
-                                    <th class="px-5 py-3">Kode</th>
-                                    <th class="px-5 py-3">Toko</th>
-                                    <th class="px-5 py-3 text-right">Total</th>
-                                    <th class="px-5 py-3 text-center">Status</th>
+                        <table class="w-full text-sm min-w-[550px]">
+                            <thead class="bg-slate-50/80 text-left border-b border-slate-100">
+                                <tr class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                                    <th class="px-5 py-3.5">Kode Pesanan</th>
+                                    <th class="px-5 py-3.5">Toko</th>
+                                    <th class="px-5 py-3.5 text-right">Total Nilai</th>
+                                    <th class="px-5 py-3.5 text-center">Status</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-slate-100">
                                 @forelse ($pesananTerbaru as $order)
-                                    <tr class="hover:bg-gray-50/60">
-                                        <td class="px-5 py-3">
-                                            <a href="{{ route('orders.show', $order) }}" class="font-mono text-xs text-gray-800 hover:text-primary">{{ $order->kode_pesanan }}</a>
+                                    <tr class="hover:bg-slate-50/60 transition-colors">
+                                        <td class="px-5 py-3.5">
+                                            <a href="{{ route('orders.show', $order) }}" class="font-mono text-xs font-bold text-slate-800 hover:text-primary transition-colors">
+                                                {{ $order->kode_pesanan }}
+                                            </a>
+                                            <span class="block text-[10px] text-slate-400 mt-0.5">{{ $order->created_at->format('d/m/Y H:i') }}</span>
                                         </td>
-                                        <td class="px-5 py-3 text-gray-700 truncate">{{ $order->store->nama_toko }}</td>
-                                        <td class="px-5 py-3 text-right font-semibold text-gray-900 whitespace-nowrap">{{ $order->total_harga_rupiah }}</td>
-                                        <td class="px-5 py-3 text-center">
-                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border {{ $order->status_badge }}">{{ $order->status_label }}</span>
+                                        <td class="px-5 py-3.5 text-slate-700 font-medium text-xs truncate">{{ $order->store->nama_toko }}</td>
+                                        <td class="px-5 py-3.5 text-right font-extrabold text-slate-900 whitespace-nowrap">{{ $order->total_harga_rupiah }}</td>
+                                        <td class="px-5 py-3.5 text-center">
+                                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold border {{ $order->status_badge }}">{{ $order->status_label }}</span>
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="4" class="px-5 py-10 text-center text-sm text-gray-500">Belum ada pesanan.</td></tr>
+                                    <tr><td colspan="4" class="px-5 py-10 text-center text-sm text-slate-400">Belum ada pesanan terbaru.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-
-            {{-- Toko teratas --}}
-            <div class="mt-6 bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-                <h2 class="text-sm font-bold text-gray-900">Toko Paling Aktif</h2>
-                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    @forelse ($tokoTeratas as $toko)
-                        <a href="{{ route('stores.show', $toko) }}" class="p-3 rounded-lg border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                            <p class="text-xs font-bold text-gray-900 truncate">{{ $toko->nama_toko }}</p>
-                            <p class="text-[11px] text-gray-500">{{ $toko->plants_count }} produk</p>
-                        </a>
-                    @empty
-                        <p class="text-xs text-gray-500">Belum ada toko aktif.</p>
-                    @endforelse
                 </div>
             </div>
         </div>

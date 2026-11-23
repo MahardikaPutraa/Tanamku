@@ -2,11 +2,6 @@
     $u = auth()->user();
     $keranjang = $u && $u->isBuyer() ? $u->cartCount() : 0;
 
-    /*
-     | Tautan navigasi sesuai peran.
-     | Semua tautan panel (termasuk dashboard) ada di sini saja —
-     | tidak diulang di sisi kanan agar tidak ada tombol ganda.
-     */
     $tautan = [];
 
     if ($u) {
@@ -29,186 +24,157 @@
     }
 @endphp
 
-<nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between gap-4 h-16">
+<header class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/80 shadow-xs">
+    {{-- Top Utility Bar --}}
+    <div class="bg-slate-900 text-slate-300 text-[11px] py-1 px-4 sm:px-6 lg:px-8 hidden sm:block">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <span class="inline-flex items-center gap-1.5 text-emerald-400 font-bold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Garansi 100% Tanaman Sampai Dalam Keadaan Segar
+                </span>
+                <span class="text-slate-600">|</span>
+                <span>Pesan Langsung via WhatsApp Mitra Petani</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="{{ route('plants.index') }}" class="hover:text-white transition-colors">Panduan Belanja</a>
+                <span class="text-slate-600">|</span>
+                @guest
+                    <a href="{{ route('register', ['role' => 'seller']) }}" class="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">Buka Toko Gratis</a>
+                @else
+                    @if (auth()->user()->isSeller())
+                        <a href="{{ route('seller.dashboard') }}" class="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">Panel Penjual</a>
+                    @endif
+                @endguest
+            </div>
+        </div>
+    </div>
 
-            {{-- ================= KIRI: logo + tautan ================= --}}
-            <div class="flex items-center gap-2 min-w-0">
-                <a href="{{ route('home') }}" class="flex items-center gap-2 group shrink-0">
-                    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+    {{-- Main Navbar --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between gap-4 h-16 sm:h-20">
+
+            {{-- Brand Logo --}}
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="{{ route('home') }}" class="flex items-center gap-2.5 group">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-emerald-700 flex items-center justify-center text-white shadow-md shadow-primary/25 group-hover:scale-105 group-hover:rotate-3 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                         </svg>
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-primary hidden sm:inline">
-                        Tanam<span class="text-emerald-600 font-extrabold">Ku</span>
-                    </span>
+                    <div>
+                        <span class="text-2xl font-black tracking-tight text-primary">
+                            Tanam<span class="text-emerald-500">Ku</span>
+                        </span>
+                        <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Marketplace</span>
+                    </div>
                 </a>
 
-                <div class="hidden md:flex items-center gap-1 ml-4">
+                {{-- Nav Links (Desktop) --}}
+                <nav class="hidden md:flex items-center gap-1 ml-4 pl-4 border-l border-slate-200">
                     @if (! $u?->isAdmin())
                         <a href="{{ route('home') }}"
-                           class="px-3 py-2 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('home') ? 'text-primary bg-primary-light' : 'text-gray-600 hover:text-primary hover:bg-gray-50' }}">
+                           class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('home') ? 'text-primary bg-primary-light shadow-2xs' : 'text-slate-600 hover:text-primary hover:bg-slate-100/80' }}">
                             Beranda
                         </a>
                     @endif
                     <a href="{{ route('plants.index') }}"
-                       class="px-3 py-2 rounded-lg text-sm font-semibold transition-colors {{ request()->routeIs('plants.*') ? 'text-primary bg-primary-light' : 'text-gray-600 hover:text-primary hover:bg-gray-50' }}">
-                        Katalog
+                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('plants.*') ? 'text-primary bg-primary-light shadow-2xs' : 'text-slate-600 hover:text-primary hover:bg-slate-100/80' }}">
+                        Katalog Tanaman
                     </a>
 
                     @foreach ($tautan as [$label, $url, $aktif])
                         <a href="{{ $url }}"
-                           class="px-3 py-2 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap {{ request()->routeIs($aktif) ? 'text-primary bg-primary-light' : 'text-gray-600 hover:text-primary hover:bg-gray-50' }}">
+                           class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap {{ request()->routeIs($aktif) ? 'text-primary bg-primary-light shadow-2xs' : 'text-slate-600 hover:text-primary hover:bg-slate-100/80' }}">
                             {{ $label }}
                         </a>
                     @endforeach
-                </div>
+                </nav>
             </div>
 
-            {{-- ================= TENGAH: pencarian ================= --}}
-            <form method="GET" action="{{ route('plants.index') }}" class="hidden lg:block flex-1 max-w-xs xl:max-w-sm">
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+            {{-- Global Search Bar (Marketplace Style) --}}
+            <form method="GET" action="{{ route('plants.index') }}" class="hidden lg:block flex-1 max-w-md xl:max-w-lg mx-4">
+                <div class="relative flex items-center">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
                         </svg>
                     </span>
                     <input type="text" name="q" value="{{ request('q') }}"
-                           placeholder="Cari tanaman…"
-                           class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-800 outline-none transition focus:bg-white focus:border-primary focus:ring-1 focus:ring-primary">
+                           placeholder="Cari monstera, sukulen, aglaonema, kaktus..."
+                           class="w-full pl-10 pr-24 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-xs text-slate-800 outline-none transition focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-2xs">
+                    <button type="submit" class="absolute right-1.5 px-3 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover shadow-2xs transition-all">
+                        Cari
+                    </button>
                 </div>
             </form>
 
-            {{-- ================= KANAN: keranjang + akun ================= --}}
-            <div class="hidden md:flex items-center gap-2 shrink-0">
+            {{-- Right Actions: Cart & Profile --}}
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                 @auth
                     @if ($u->isBuyer())
                         <a href="{{ route('carts.index') }}"
-                           class="relative p-2 rounded-lg transition-colors {{ request()->routeIs('carts.*') ? 'text-primary bg-primary-light' : 'text-gray-600 hover:text-primary hover:bg-gray-50' }}"
-                           title="Keranjang">
+                           class="relative p-2.5 rounded-2xl border border-slate-200/80 hover:border-primary/40 hover:bg-primary-light/50 transition-all text-slate-700 hover:text-primary"
+                           title="Keranjang Belanja">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
                             @if ($keranjang > 0)
-                                <span class="absolute -top-0.5 -right-0.5 min-w-[1.15rem] h-[1.15rem] px-1 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center">
+                                <span class="absolute -top-1 -right-1 min-w-[1.25rem] h-[1.25rem] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow-xs">
                                     {{ $keranjang }}
                                 </span>
                             @endif
                         </a>
                     @endif
 
-                    <div class="flex items-center gap-2 pl-2 border-l border-gray-200">
-                        <div class="w-8 h-8 rounded-full bg-primary-light text-primary text-xs font-bold flex items-center justify-center uppercase shrink-0">
+                    {{-- User Profile Pill --}}
+                    <div class="flex items-center gap-2.5 pl-2">
+                        <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary-light to-emerald-100 text-primary font-black text-xs flex items-center justify-center border border-primary/20 shadow-2xs uppercase">
                             {{ mb_substr($u->name, 0, 1) }}
                         </div>
-                        <div class="leading-tight hidden lg:block">
-                            <div class="flex items-center gap-1.5">
-                                <p class="text-xs font-semibold text-gray-800 max-w-[8rem] truncate">{{ $u->name }}</p>
-                                @if ($u->email_verified_at)
-                                    <span class="inline-flex items-center text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full" title="Email Terverifikasi">
-                                        ✓ Verified
-                                    </span>
-                                @else
-                                    <a href="{{ route('verification.notice') }}" class="inline-flex items-center text-[10px] font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-1.5 py-0.5 rounded-full transition" title="Klik untuk verifikasi email">
-                                        (Belum Verified)
-                                    </a>
-                                @endif
-                            </div>
-                            <p class="text-[10px] text-gray-500 truncate max-w-[11rem]">{{ $u->email }} · {{ $u->role_label }}</p>
+                        <div class="hidden xl:block leading-tight text-left">
+                            <p class="text-xs font-bold text-slate-900 max-w-[8rem] truncate">{{ $u->name }}</p>
+                            <p class="text-[10px] font-semibold text-emerald-600">{{ $u->isAdmin() ? 'Super Admin' : ($u->isSeller() ? 'Penjual' : 'Pembeli') }}</p>
                         </div>
+
+                        <form method="POST" action="{{ route('logout') }}" class="hidden sm:inline">
+                            @csrf
+                            <button type="submit" class="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors">
+                                Keluar
+                            </button>
+                        </form>
                     </div>
-
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="p-2 rounded-lg text-gray-500 hover:text-danger hover:bg-red-50 transition-colors" title="Keluar">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                            </svg>
-                        </button>
-                    </form>
+                @else
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('login') }}"
+                           class="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 hover:text-primary hover:bg-slate-100 transition-colors">
+                            Masuk
+                        </a>
+                        <a href="{{ route('register') }}"
+                           class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-extrabold shadow-sm hover:bg-primary-hover hover:shadow-md transition-all active:scale-95">
+                            Daftar
+                        </a>
+                    </div>
                 @endauth
-
-                @guest
-                    <a href="{{ route('login') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:text-primary hover:bg-gray-50 transition-colors">
-                        Masuk
-                    </a>
-                    <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-primary hover:bg-primary-hover shadow-sm transition-colors">
-                        Daftar
-                    </a>
-                @endguest
             </div>
 
-            {{-- Tombol mobile --}}
-            <div class="flex items-center md:hidden">
-                <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
-                        class="p-2 rounded-lg text-gray-600 hover:text-primary hover:bg-gray-100">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
-            </div>
         </div>
-    </div>
 
-    {{-- ==================== MENU MOBILE ==================== --}}
-    <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white px-4 pt-3 pb-4 space-y-1">
-        <form method="GET" action="{{ route('plants.index') }}" class="pb-2">
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+        {{-- Mobile Quick Search Bar (Marketplace Mobile Standard) --}}
+        <div class="block lg:hidden pb-3 pt-0">
+            <form method="GET" action="{{ route('plants.index') }}" class="relative flex items-center">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/>
                     </svg>
                 </span>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari tanaman…"
-                       class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm outline-none focus:bg-white focus:border-primary">
-            </div>
-        </form>
-
-        @if (! $u?->isAdmin())
-            <a href="{{ route('home') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('home') ? 'text-primary bg-primary-light' : 'text-gray-700 hover:bg-gray-50' }}">Beranda</a>
-        @endif
-        <a href="{{ route('plants.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs('plants.*') ? 'text-primary bg-primary-light' : 'text-gray-700 hover:bg-gray-50' }}">Katalog</a>
-
-        @auth
-            @foreach ($tautan as [$label, $url, $aktif])
-                <a href="{{ $url }}"
-                   class="block px-3 py-2 rounded-lg text-base font-medium {{ request()->routeIs($aktif) ? 'text-primary bg-primary-light' : 'text-gray-700 hover:bg-gray-50' }}">
-                    {{ $label }}
-                </a>
-            @endforeach
-
-            @if ($u->isBuyer())
-                <a href="{{ route('carts.index') }}" class="block px-3 py-2 rounded-lg text-base font-medium text-gray-700 hover:bg-gray-50">
-                    Keranjang {{ $keranjang > 0 ? '(' . $keranjang . ')' : '' }}
-                </a>
-            @endif
-
-            <div class="pt-3 mt-1 border-t border-gray-100">
-                <div class="px-3 py-2 bg-gray-50 rounded-lg mb-2">
-                    <p class="text-xs font-bold text-gray-800">{{ $u->name }} ({{ $u->role_label }})</p>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <p class="text-[11px] text-gray-500">{{ $u->email }}</p>
-                        @if ($u->email_verified_at)
-                            <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">✓ Verified</span>
-                        @else
-                            <a href="{{ route('verification.notice') }}" class="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full hover:underline">(Belum Verified)</a>
-                        @endif
-                    </div>
-                </div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-danger hover:bg-red-50">
-                        Keluar
-                    </button>
-                </form>
-            </div>
-        @else
-            <div class="pt-3 border-t border-gray-100 flex gap-2">
-                <a href="{{ route('login') }}" class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-gray-100">Masuk</a>
-                <a href="{{ route('register') }}" class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-primary">Daftar</a>
-            </div>
-        @endguest
+                <input type="text" name="q" value="{{ request('q') }}"
+                       placeholder="Cari monstera, sukulen, aglaonema..."
+                       class="w-full pl-9 pr-16 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 outline-none transition focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 shadow-2xs">
+                <button type="submit" class="absolute right-1 px-3 py-1 rounded-lg bg-primary text-white text-[11px] font-bold shadow-2xs">
+                    Cari
+                </button>
+            </form>
+        </div>
     </div>
-</nav>
+</header>
